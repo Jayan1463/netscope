@@ -3,7 +3,7 @@ import streamlit as st
 
 # ===================== Imports =====================
 from layers.dns_layer import resolve_dns
-from layers.ip_layer import ping_host
+from layers.ip_layer import tcp_latency
 from layers.traceroute_layer import traceroute_host
 from layers.tcp_layer import tcp_handshake
 from layers.tls_layer import inspect_tls
@@ -14,7 +14,6 @@ from reports.report_builder import build_report
 
 from visuals.charts import (
     latency_bar,
-    ping_line,
     traceroute_chart,
     tcp_handshake_timeline,
     tls_status_card,
@@ -48,7 +47,7 @@ st.caption("Observe • Break • Explain (smooth, progressive execution)")
 with st.sidebar:
     st.header("Layers")
     enable_dns = st.checkbox("DNS", True)
-    enable_ip = st.checkbox("IP / Ping", True)
+    enable_ip = st.checkbox("IP / Reachability (TCP)", True)
     enable_trace = st.checkbox("Traceroute", True)
     enable_tcp = st.checkbox("TCP", True)
     enable_tls = st.checkbox("TLS", True)
@@ -110,20 +109,31 @@ if run:
         else:
             st.error(dns["error"])
 
-    # ---------------- IP ----------------
+    # ---------------- IP (TCP Reachability) ----------------
     if enable_ip:
         step += 1
-        advance(progress_bar, progress_label, step, total, "Measuring IP reachability")
+        advance(progress_bar, progress_label, step, total, "Measuring TCP reachability")
 
-        st.subheader("📡 IP / Ping")
-        with st.spinner("Pinging host..."):
-            ping = ping_host(domain)
+        st.subheader("📡 IP / Reachability (TCP)")
+        with st.spinner("Checking TCP connectivity..."):
+            ip = tcp_latency(domain)
 
-        if ping["status"] == "ok":
-            report_data["ip"] = ping
-            show(ping_line(ping["latencies"]))
+        if ip["status"] == "reachable":
+            report_data["ip"] = ip
+            summary["IP"] = ip["latency_ms"]
+
+            show(latency_bar(
+                "TCP Reachability (Port 443)",
+                ip["latency_ms"]
+            ))
+
+            st.info(
+                f"Method: {ip['method']} • "
+                f"Port: {ip['port']} • "
+                f"Latency: {ip['latency_ms']} ms"
+            )
         else:
-            st.error(ping["error"])
+            st.error(ip.get("error", "Host unreachable"))
 
     # ---------------- Traceroute ----------------
     if enable_trace:
@@ -138,7 +148,7 @@ if run:
             report_data["traceroute"] = trace
             show(traceroute_chart(trace["hops"]))
         else:
-            st.warning("Traceroute blocked or incomplete")
+            st.warning("Traceroute blocked or incomplete (expected in cloud environments)")
 
     # ---------------- TCP ----------------
     if enable_tcp:
