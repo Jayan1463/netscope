@@ -1,0 +1,8 @@
+# Desktop / build artifacts
+dist/
+build/
+*.app
+
+# Python cache
+__pycache__/
+*.pyc
