@@ -1,230 +1,166 @@
-# 🌐 NetScope — Internet Observatory
+# 🌐 NetScope — Internet Observability Platform
 
-**NetScope** is a systems-first Internet observability and experimentation tool that visualizes how the Internet actually works — layer by layer — from **DNS resolution** to **modern transport protocols like QUIC**.
+**NetScope** is a cloud-native Internet observability tool that explains how real network requests traverse the Internet stack — **layer by layer** — from DNS resolution to application-level protocols.
 
-Unlike typical networking tools or dashboards, NetScope is designed to **teach, observe, break, and explain** real Internet behavior using first-principles thinking.
+Unlike traditional tools that treat the network as a black box, NetScope focuses on **explainability, systems behavior, and real-world cloud constraints**.
 
----
-
-## 🧠 Philosophy
-
-> *“Don’t just use the Internet — observe it, stress it, and understand why it behaves the way it does.”*
-
-NetScope focuses on:
-
-* Systems thinking over surface-level metrics
-* Explainability over raw data
-* Real network behavior instead of mocks
-* Learning through controlled failure
+🔗 **Live Demo:** [https://netscope-0ev2.onrender.com](https://netscope-0ev2.onrender.com)
 
 ---
 
-## ✨ Key Features
+## 🚀 Why NetScope?
 
-### 🔍 Layer-by-Layer Internet Visibility
+Most networking tools assume:
 
-* **DNS** — Name resolution latency and caching behavior
-* **IP / Ping** — Reachability, packet latency trends
-* **Traceroute** — Actual hop-by-hop routing paths
-* **TCP** — Connection establishment timing
-* **TLS** — Certificate trust and validity
-* **HTTP** — End-to-end request waterfall
-* **QUIC (HTTP/3)** — Modern protocol comparison vs TCP
+* ICMP (ping) is always available ❌
+* Local machine privileges exist ❌
+* Cloud environments behave like desktops ❌
 
----
+NetScope was built **from first principles** to work in **real cloud environments**, where:
 
-### ⚙️ Failure Injection (Safe & Local)
+* ICMP is blocked
+* Traceroute is restricted
+* Raw sockets are unavailable
 
-Simulate real-world conditions without breaking your system:
-
-* Slow DNS resolution
-* Artificial TCP latency
-* HTTP request failure simulation
-* Observe cascading effects across layers
+Instead of forcing these tools, NetScope redesigns reachability and latency measurement using **production-safe techniques** like TCP socket timing.
 
 ---
 
-### 📊 Visual, Animated Observability
+## 🧠 What NetScope Does
 
-* Interactive Plotly charts
-* Waterfall timelines
-* Per-layer latency breakdowns
-* Request-time attribution graph
+NetScope analyzes a request across the Internet stack:
+
+### 🌐 DNS
+
+* Domain resolution
+* Resolver latency
+* Cache inference (TTL behavior)
+
+### 🔌 IP / Reachability (Cloud-Safe)
+
+* TCP-based reachability (no ICMP)
+* Connection latency measurement
+* Packet-loss approximation
+
+### 🛰️ Traceroute (Best-Effort)
+
+* Hop-by-hop path visualization
+* Graceful degradation when blocked
+
+### 🔗 TCP
+
+* Three-way handshake timing
+* Connection establishment latency
+
+### 🔐 TLS
+
+* Certificate inspection
+* Expiry and validation status
+
+### 📄 HTTP
+
+* Request/response timing breakdown
+* Waterfall visualization
+
+### ⚡ QUIC vs TCP
+
+* HTTP/3 (QUIC) vs HTTP/1.1 performance comparison
+* Automatic fallback if QUIC is unsupported
 
 ---
 
-### 🤖 AI-Assisted Explanation
+## 🧪 Failure Simulation (Educational Focus)
 
-NetScope can generate **human-readable explanations** of:
+NetScope can **simulate failures** to demonstrate how systems degrade:
 
-* Why a request was slow
-* Which layer dominated latency
-* How failures propagated
-* What would improve performance
+* Artificial DNS latency
+* TCP connection delays
+* HTTP request failures
 
-(Uses a local or pluggable LLM — no cloud lock-in.)
-
----
-
-### 📦 Desktop App Support
-
-* Packaged as a **macOS `.app`**
-* No terminal required for end users
-* Local execution only (privacy-safe)
-* Optional `.dmg` installer
+This makes NetScope useful not just for observation, but for **systems learning and reliability thinking**.
 
 ---
 
-## 🧱 Architecture Overview
+## 🛠️ Tech Stack
+
+* **Python**
+* **Streamlit** (UI & orchestration)
+* **Plotly** (visualizations)
+* **Socket Programming**
+* **TLS / SSL**
+* **HTTP / QUIC**
+* **Cloud Deployment (Render)**
+
+---
+
+## 🏗️ Architecture Overview
 
 ```
-netscope/
-│
-├── app.py                # Main Streamlit application
-├── launcher.py           # Desktop app launcher (PyInstaller)
-│
-├── layers/               # Internet layer implementations
+app.py
+├── layers/
 │   ├── dns_layer.py
-│   ├── ip_layer.py
+│   ├── ip_layer.py        # TCP-based reachability
 │   ├── traceroute_layer.py
 │   ├── tcp_layer.py
 │   ├── tls_layer.py
 │   ├── http_layer.py
-│   ├── quic_layer.py
-│   └── llm_explainer.py
-│
+│   └── quic_layer.py
 ├── visuals/
-│   └── charts.py         # All Plotly visualizations
-│
+│   └── charts.py
 ├── reports/
-│   └── report_builder.py # JSON diagnostic export
-│
-└── README.md
+│   └── report_builder.py
 ```
 
-Each layer is intentionally isolated to reinforce **clear responsibility boundaries**, mirroring real protocol stacks.
+Each layer:
+
+* Executes independently
+* Fails gracefully
+* Explains *why* something worked or failed
 
 ---
 
-## 🚀 Getting Started (Development)
+## ☁️ Cloud-Native Design Decisions
 
-### 1️⃣ Create a virtual environment
+* ❌ No ICMP dependency (ping blocked in cloud)
+* ✅ TCP socket timing used instead
+* ❌ No privileged system calls
+* ✅ Fully deployable on managed platforms
+* ✅ Safe for production environments
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
+---
 
-### 2️⃣ Install dependencies
-
-```bash
-pip install streamlit plotly requests dnspython
-```
-
-### 3️⃣ Run NetScope
+## 📦 Local Setup (Optional)
 
 ```bash
+git clone https://github.com/Jayan1463/netscope.git
+cd netscope
+pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open: `http://localhost:8501`
+---
+
+## 🎯 Learning Outcomes
+
+This project demonstrates:
+
+* Systems-level thinking
+* Real-world networking behavior
+* Cloud deployment constraints
+* Observability and reliability design
+* Debugging across network layers
 
 ---
 
-## 🖥️ Building macOS Desktop App
+## 👤 Author
 
-NetScope can be packaged as a native macOS app using **PyInstaller**.
-
-### Build steps (stable method)
-
-```bash
-pip install pyinstaller
-pyinstaller \
-  --windowed \
-  --name NetScope \
-  --add-data "app.py:." \
-  launcher.py
-```
-
-Output:
-
-```
-dist/NetScope.app
-```
-
-> ℹ️ Uses `onedir` mode for macOS stability.
-> Streamlit hot-reload is intentionally disabled.
-
----
-
-## 📤 Exporting Reports
-
-NetScope can export a full diagnostic snapshot as JSON, including:
-
-* Per-layer timing data
-* Failure simulations applied
-* Observed protocol behavior
-* AI-generated explanation
-
-Useful for:
-
-* Case studies
-* Debugging exercises
-* Interview walkthroughs
-* Teaching material
-
----
-
-## 🎓 What This Project Demonstrates
-
-This project showcases:
-
-* Deep understanding of Internet protocols
-* Systems-level reasoning
-* Observability tooling design
-* Failure modeling
-* Clean modular architecture
-* UI/UX for technical systems
-* Desktop app packaging
-
-It is **not** a CRUD app, dashboard clone, or framework demo.
-
----
-
-## 🧩 Limitations (Intentional)
-
-* QUIC availability depends on system HTTP/3 support
-* TLS handshake timing is approximated
-* No packet-level sniffing (focus is conceptual clarity)
-
-These trade-offs are deliberate to keep the project **explainable and portable**.
-
----
-
-## 🛣️ Future Extensions
-
-* Packet-level simulation engine
-* TCP retransmission visualization
-* DNS cache poisoning scenarios
-* Multi-request comparison mode
-* Distributed system failure graphs
+**Jayan**
+B.E Computer Science Engineering
+Focus: Systems, Networking, Cloud, Observability
 
 ---
 
 ## 📜 License
 
-This project is intended for **educational and research purposes**.
-Local-only execution. No data collection.
-
----
-
-## 🙌 Final Note
-
-NetScope was built to answer one question:
-
-> *“What is really happening when I type a URL and press Enter?”*
-
-If you understand NetScope, you understand the Internet.
-
----
+This project is for educational and demonstration purposes.
 
