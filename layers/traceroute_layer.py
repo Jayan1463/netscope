@@ -10,6 +10,7 @@ def traceroute_host(host, max_hops=15):
             text=True
         )
 
+
         if process.returncode != 0:
             raise Exception(process.stderr)
 
